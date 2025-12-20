@@ -26,6 +26,19 @@
 
 ***`Invoice` -> `Check (Policy)` -> `Fail (Pause)` -> `Log (Redis/DB)` -> `Dashboard` -> `Notify (Email)`***
 
+***### **Detailed System Diagram*****
+![System Architecture](architecture_diagram.png)
+
+*The system uses a **Saga Orchestration Pattern**...*
+
+***### **Data Model*****
+To ensure auditability, the system uses a hybrid storage approach. While Redis handles high-speed state, PostgreSQL maintains a permanent, relational record of every financial decision.
+
+![Database Schema](er_diagram.png)
+
+* **Transactions:** Stores the immutable history of every payment attempts, including the blockchain `tx_hash` and the `balance_snapshot` at that moment.
+* **SystemConfig:** Allows dynamic policy adjustments (e.g., changing the approval limit from $50 to $500) without redeploying code.
+
 ***### **Detailed Logic*****  
 ***The system uses a **Saga Orchestration Pattern** to ensure financial safety. It treats "Financial Reliability" as a first-class citizen, ensuring no funds are lost between the off-chain decision and on-chain settlement.***
 
