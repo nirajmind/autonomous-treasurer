@@ -1,0 +1,20 @@
+--------------------------------------------------
+INVOICE                  #INV-2024-001
+--------------------------------------------------
+VENDOR:     CloudSpace Hosting LLC
+DATE:       December 19, 2025
+DUE DATE:   December 25, 2025
+
+BILL TO:    Autonomous Treasurer Inc.
+
+DESCRIPTION                          AMOUNT
+--------------------------------------------------
+Dedicated GPU Server (Monthly)       150.00
+Data Transfer Fees (5TB)               0.00
+--------------------------------------------------
+TOTAL DUE:                           150.00 MNEE
+--------------------------------------------------
+
+PAYMENT INSTRUCTIONS:
+Wallet: 0x1234567890abcdef1234567890abcdef12345678
+Network: Minato Testnet

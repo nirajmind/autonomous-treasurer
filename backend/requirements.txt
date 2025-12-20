@@ -1,0 +1,27 @@
+# --- The Core API ---
+fastapi
+uvicorn
+
+# --- The "Brain" (AI Agent) ---
+langchain
+langchain-community
+langchain-openai
+openai
+python-dotenv
+pypdf                    # To read Invoice PDFs
+
+# --- The "Hands" (Crypto/MNEE) ---
+web3                     # Standard for Ethereum/Stablecoins
+eth-account
+
+# --- The "Reliability" (Database/SAGA support) ---
+redis                    # For managing SAGA state/queues
+sqlalchemy               # To store transaction history
+psycopg2-binary          # Postgres driver
+aiohttp                  # Async requests (needed for LangChain/Web3)
+
+# --- Security ---
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+bcrypt==4.0.1

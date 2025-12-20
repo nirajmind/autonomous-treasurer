@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # 1. POSTGRESQL (The Ledger)
+  db:
+    image: postgres:15-alpine
+    container_name: treasurer_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: securepassword
+      POSTGRES_DB: treasurer_ledger
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - treasurer_net
+
+  # 2. REDIS (The Queue)
+  redis:
+    image: redis:7-alpine
+    container_name: treasurer_queue
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - treasurer_net
+
+  # 3. BACKEND (FastAPI)
+  backend:
+    build: ./backend
+    container_name: treasurer_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app  
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./backend/.env
+    dns:
+      - 8.8.8.8
+    environment:
+      DATABASE_URL: postgresql://admin:securepassword@db:5432/treasurer_ledger
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DB_HOST: db
+    networks:
+      - treasurer_net
+
+  # 4. FRONTEND (Vue.js - UNCOMMENTED & ENABLED)
+  frontend:
+    build: ./frontend  # Ensure you have a Dockerfile in /frontend
+    container_name: treasurer_frontend
+    restart: always
+    ports:
+      - "5173:80"      # Standard Vite/Nginx port mapping
+    depends_on:
+      - backend
+    networks:
+      - treasurer_net
+
+  # 5. DASHBOARD (REMOVED - We are using Vue now)
+  # (Delete the entire dashboard block)
+
+volumes:
+  postgres_data:
+
+networks:
+  treasurer_net:
+    driver: bridge
