@@ -38,3 +38,8 @@ Thumbs.db
 
 # --- Docker ---
 docker-compose.override.yml
+
+# --- Internal / Archive ---
+docs/archive/           # Internal progress tracking (not for production)
+backend/scripts/        # Optional: Keep local utility scripts private
+*.log                   # Application logs

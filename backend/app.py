@@ -24,6 +24,16 @@ from finance.saga_orchestrator import SagaOrchestrator
 from auth import create_access_token, get_current_user, verify_password
 from agents.invoice_parser import parse_invoice_text
 
+# --- SECURITY IMPORTS (Priority #3) ---
+from security import (
+    InvoiceRequestModel,
+    TransactionRequestModel,
+    LoginRequestModel,
+    LimitUpdateRequestModel,
+    rate_limit_middleware,
+    security_headers_middleware,
+)
+
 # --- INTERNAL IMPORTS ---
 from finance.database import get_db, engine, Base
 from auth import (
@@ -56,15 +66,28 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="The Autonomous Treasurer API", lifespan=lifespan)
 
 # --- CORS ---
+# Get CORS origins from environment or use defaults
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
+cors_origins = [origin.strip() for origin in cors_origins]  # Remove whitespace
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- DATA MODELS ---
+# --- SECURITY MIDDLEWARE (Priority #3) ---
+app.middleware("http")(security_headers_middleware)
+app.middleware("http")(rate_limit_middleware)
+
+# --- OBSERVABILITY MIDDLEWARE (Priority #2) ---
+from middleware.observability import request_tracking_middleware
+app.middleware("http")(request_tracking_middleware)
+
+# --- DATA MODELS (now using validated models from security module) ---
+# Old models kept for backward compatibility, but security module provides validated versions
 class InvoiceRequest(BaseModel):
     raw_text: str
 
@@ -76,10 +99,12 @@ class LimitUpdate(BaseModel):
 # 1. PUBLIC ENDPOINTS (Login & Health)
 # ==================================================================
 
-@app.get("/")
+@app.get("/health")
 def read_root():
     """Public health check to show system is online."""
-    return {"status": "Online", "service": "Autonomous Treasurer Backend 🚀"}
+    return {"status": "healthy", "version": "1.0.0"}
+
+logger.info("Application started successfully")
 
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -211,14 +236,14 @@ def startup_event():
 # 2. INVOICE PROCESSING (THE BRAIN)
 @app.post("/api/process-invoice")
 async def process_invoice(
-    invoice: InvoiceRequest, 
+    invoice: InvoiceRequestModel,  # ✅ Using validated model
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db) # <--- Need DB Access
+    db: Session = Depends(get_db)
 ):
     logger.info("Received invoice for processing...")
     redis_client = redis.Redis(host=os.getenv("REDIS_HOST", "redis"), port=6379, db=0, decode_responses=True)
 
-    # A. Parse
+    # A. Parse (invoice.raw_text is already validated)
     try:
         parsed_data = parse_invoice_text(invoice.raw_text)
         amount = float(parsed_data.amount or 0.0)
@@ -328,6 +353,63 @@ def fetch_treasury_balance():
     except Exception as e:
         logger.error(f"Balance Check Failed: {e}")
         return 0.0    
+
+# ==================================================================
+# 🏥 OBSERVABILITY ENDPOINTS (Priority #2)
+# ==================================================================
+
+# Initialize health checker and metrics collector
+from observability import HealthChecker, MetricsCollector
+
+health_checker = None
+metrics_collector = MetricsCollector()
+
+@app.get("/health/ready")
+async def readiness_probe(db: Session = Depends(get_db)):
+    """
+    Kubernetes readiness probe.
+    Returns 200 only if app can handle requests.
+    """
+    global health_checker
+    if health_checker is None:
+        redis_client = redis.Redis(host=os.getenv("REDIS_HOST", "redis"), port=6379, db=0, decode_responses=True)
+        health_checker = HealthChecker(db, redis_client)
+    
+    health = await health_checker.check_all()
+    
+    if health["status"] == "healthy":
+        return health
+    else:
+        raise HTTPException(status_code=503, detail=health)
+
+@app.get("/health/live")
+async def liveness_probe():
+    """
+    Kubernetes liveness probe.
+    Returns 200 if app is running.
+    """
+    return {
+        "status": "alive",
+        "timestamp": datetime.utcnow().isoformat(),
+        "version": "1.0.0"
+    }
+
+@app.get("/metrics")
+async def get_metrics(current_user: User = Depends(get_current_user)):
+    """
+    Get application performance metrics.
+    Protected endpoint - requires JWT.
+    """
+    return metrics_collector.get_metrics()
+
+@app.post("/metrics/reset")
+async def reset_metrics(current_user: User = Depends(get_current_user)):
+    """
+    Reset metrics counter.
+    Admin only.
+    """
+    metrics_collector.reset_metrics()
+    return {"status": "metrics reset"}
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

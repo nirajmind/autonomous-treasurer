@@ -1,10 +1,10 @@
-### **Inspiration**
+# 🔮Inspiration
 
 As a freelancer currently navigating the job market, managing "runway" isn't just a business metric—it's personal survival. I realized that while I have plenty of AI tools to *summarize* my financial situation, I have zero tools that can actually *manage* it.
 
 Current AI agents are "read-only." They can tell you an invoice is due, but they can't pay it because traditional banking APIs are too closed and friction-heavy for autonomous agents. I wanted to build "The Autonomous Treasurer" to bridge this gap: a tool that uses the programmable nature of **MNEE** to give an AI agent the power to act as a responsible, reliable "Fractional CFO" for the gig economy.
 
-### **What it does**
+## What it does
 
 **The Autonomous Treasurer** is an agentic workflow that manages accounts payable for freelancers and small businesses.
 
