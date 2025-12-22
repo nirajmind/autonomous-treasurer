@@ -475,7 +475,7 @@ const invoice = await fetch("http://localhost:8000/api/process-invoice", {
 ### 401 Unauthorized
 
 **Problem:** "Invalid token"
-**Solution:** 
+**Solution:**
 
 1. Get new token: `curl -X POST http://localhost:8000/token ...`
 2. Include `Authorization: Bearer <token>` header
