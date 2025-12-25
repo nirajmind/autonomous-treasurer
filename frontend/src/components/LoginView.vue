@@ -18,7 +18,7 @@ const handleLogin = async () => {
     formData.append('username', username.value)
     formData.append('password', password.value)
 
-    const res = await axios.post('http://localhost:8000/token', formData)
+    const res = await axios.post('https://smarttreasurer.duckdns.org/token', formData)
     
     // Save Token & Notify Parent
     localStorage.setItem('treasurer_token', res.data.access_token)

@@ -21,7 +21,7 @@ const token = localStorage.getItem('treasurer_token')
 // 1. Fetch Main Stats (Balance & Runway)
 const fetchFinancialStatus = async () => {
   try {
-    const response = await axios.get('http://localhost:8000/api/dashboard', {
+    const response = await axios.get('https://smarttreasurer.duckdns.org/api/dashboard', {
         headers: { Authorization: `Bearer ${token}` }
     })
     
@@ -42,7 +42,7 @@ const fetchFinancialStatus = async () => {
 // 2. Fetch Logs (The Missing Part!)
 const fetchLogs = async () => {
   try {
-      const response = await axios.get('http://localhost:8000/api/dashboard/logs', {
+      const response = await axios.get('https://smarttreasurer.duckdns.org/api/dashboard/logs', {
           headers: { Authorization: `Bearer ${token}` }
       })
       // Only update if we actually got data back
@@ -57,7 +57,7 @@ const fetchLogs = async () => {
 // 3. Fetch Policy Limit
 const fetchLimit = async () => {
     try {
-        const res = await axios.get('http://localhost:8000/api/settings/limit', {
+        const res = await axios.get('https://smarttreasurer.duckdns.org/api/settings/limit', {
             headers: { Authorization: `Bearer ${token}` }
         })
         approvalLimit.value = res.data.limit
@@ -68,7 +68,7 @@ const fetchLimit = async () => {
 const updateLimit = async () => {
     try {
         await axios.post(
-            'http://localhost:8000/api/settings/limit', 
+            'https://smarttreasurer.duckdns.org/api/settings/limit', 
             { new_limit: approvalLimit.value }, 
             { headers: { Authorization: `Bearer ${token}` } }
         )
