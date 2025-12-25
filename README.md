@@ -294,11 +294,12 @@ docker-compose up --build
 
 Access points:
 
-- **Frontend:** http://localhost:5173
-- **API Docs:** http://localhost:8000/docs
-- **Prometheus Metrics:** http://localhost:8000/metrics (with auth)
-- **PostgreSQL:** localhost:5432
-- **Redis:** localhost:6379
+- [Frontend](https://smarttreasurer.duckdns.org/)
+- [API Docs](https://smarttreasurer.duckdns.org/docs)
+- [API](https://smarttreasurer.duckdns.org/api)
+- [Metrics Dashboard](https://smarttreasurer.duckdns.org/metrics) (with auth)
+- [PostgreSQL](https://smarttreasurer.duckdns.org/health/live)
+- [Redis](https://smarttreasurer.duckdns.org/health/ready)
 
 ### 4. Login
 
