@@ -323,7 +323,7 @@ Navigate to **Settings → Spending Limits**:
 
 ```bash
 # Send sample invoice via API
-curl -X POST http://localhost:8000/api/process-invoice \
+curl -X POST https://smarttreasurer.duckdns.org/api/process-invoice \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
