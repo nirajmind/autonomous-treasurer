@@ -20,7 +20,7 @@ class MNEEWallet:
         
         # 3. MNEE Contract Details (You need to get this from Hackathon Docs)
         # This is a generic ERC-20 ABI (Interface)
-        self.contract_address = "0x..." # <--- REPLACE THIS WITH MNEE ADDRESS
+        self.contract_address = "0x8ccedbAe4916b79da7F3F612EfB2EB93A2bFD6cF" # <--- REPLACE THIS WITH MNEE ADDRESS
         self.erc20_abi = [
             {
                 "constant": False,
